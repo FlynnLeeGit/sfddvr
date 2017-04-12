@@ -6,6 +6,8 @@ import router from './router'
 
 Vue.config.productionTip = false
 
+Vue.prototype.$aframeUtils = window.AFRAME.utils
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
