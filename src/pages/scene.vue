@@ -45,8 +45,9 @@
 
     <a-entity :rotation='getLinkRotation(link.y)' v-for='link in currentRoom.links' :key='link.room'>
        <a-plane src='#city-thumb' position='0 0 -5' @click="goNextRoom(link.room)" @mouseenter='isHover=true' @mouseleave='isHover=false'>
+
         <a-animation begin='mouseenter' end='mouseleave' attribute='position'
-          direction='alternate' to='0 .3 -5' repeat='indefinite'
+          direction='alternate' to='0 0.1 -5' repeat='indefinite'
           dur='500'></a-animation>
       </a-plane>
     </a-entity>
@@ -56,9 +57,8 @@
               user-height='0'
               wasd-controls='enabled:false;'>
       <a-cursor :color="isHover?'green':'white'"></a-cursor>
-      <a-animation v-if='isFly' attribute='rotation' to='0 360 0' repeat='indefinite' dur='20000' easing='linear'></a-animation>
+      <a-animation v-if='isFly' attribute='rotation' to='0 -360 0' repeat='indefinite' dur='50000' easing='linear'></a-animation>
       <a-animation @animationend='changingEnd()' v-if='isChanging' attribute='zoom' from='1' to='.1' dur='300' easing='linear' direction='alternate' repeat='1'></a-animation>
-      <a-animation v-if='isChanging' attribute='rotation' to='0 0 0' dur='280' easing='linear' direction='alternate'></a-animation>
     </a-camera>
 
 
