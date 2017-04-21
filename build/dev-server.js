@@ -11,6 +11,7 @@ var express = require('express')
 var webpack = require('webpack')
 var proxyMiddleware = require('http-proxy-middleware')
 var webpackConfig = require('./webpack.dev.conf')
+var logger = require('morgan')
 
 // default port where dev server listens for incoming traffic
 var port = process.env.PORT || config.dev.port
@@ -38,6 +39,8 @@ compiler.plugin('compilation', function (compilation) {
     cb()
   })
 })
+
+app.use(logger('dev'))
 
 // proxy api requests
 Object.keys(proxyTable).forEach(function (context) {

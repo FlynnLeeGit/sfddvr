@@ -13,7 +13,7 @@ module.exports = {
   },
   output: {
     path: config.build.assetsRoot,
-    filename: '[name].js',
+    filename: 'virtual_reality/[name].js',
     publicPath: process.env.NODE_ENV === 'production'
       ? config.build.assetsPublicPath
       : config.dev.assetsPublicPath
@@ -51,7 +51,7 @@ module.exports = {
         loader: 'url-loader',
         options: {
           limit: 10000,
-          name: utils.assetsPath('img/[name].[ext]?[hash:5]')
+          name: utils.assetsPath('img/[name].[hash:5].[ext]')
         }
       },
       {
@@ -59,7 +59,7 @@ module.exports = {
         loader: 'url-loader',
         options: {
           limit: 10000,
-          name: utils.assetsPath('fonts/[name].[ext]?[hash:5]')
+          name: utils.assetsPath('fonts/[name].[hash:5].[ext]')
         }
       }
     ]

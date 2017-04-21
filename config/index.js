@@ -6,7 +6,7 @@ module.exports = {
     env: require('./prod.env'),
     index: path.resolve(__dirname, '../dist/index.html'),
     assetsRoot: path.resolve(__dirname, '../dist'),
-    assetsSubDirectory: 'static',
+    assetsSubDirectory: 'virtual_reality/static',
     assetsPublicPath: '/',
     productionSourceMap: true,
     // Gzip off by default as many popular static hosts such as
@@ -23,15 +23,11 @@ module.exports = {
   },
   dev: {
     env: require('./dev.env'),
-    port: 8090,
-    autoOpenBrowser: true,
-    assetsSubDirectory: 'static',
+    port: 5000,
+    autoOpenBrowser: false,
+    assetsSubDirectory: 'virtual_reality/static',
     assetsPublicPath: '/',
-    proxyTable: {
-      '/_common': 'http://develop.sfdd.lab/',
-      '/_fapi': 'http://develop.sfdd.lab/',
-      '/_bapi': 'http://develop.sfdd.lab/'
-    },
+    proxyTable: {},
     // CSS Sourcemaps off by default because relative paths are "buggy"
     // with this option, according to the CSS-Loader README
     // (https://github.com/webpack/css-loader#sourcemaps)
