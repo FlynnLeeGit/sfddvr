@@ -55,10 +55,17 @@
 
     <a-light type="ambient"></a-light>
 
+    <div class="scene-loader"
+         v-if='isLoading'>
+      <span class="scene-loader__txt">场景加载中...</span>
+    </div>
   </a-scene>
 </template>
 
+<style src='./Scene.css'></style>
+
 <script>
+import { assetsLoad } from '@/plugins/utils'
 
 // sky-box length
 const BOX_SIZE = 5000
@@ -99,7 +106,8 @@ export default {
       isChanging: false,
       isHover: false,
       roomsMap: {},
-      currentRoom: {}
+      currentRoom: {},
+      isLoading: false
     }
   },
   created () {
@@ -111,8 +119,17 @@ export default {
       scene.rooms.forEach(r => {
         scene._roomsMap[r.id] = r
       })
-      this.currentRoom = scene.rooms[0]
       this.roomsMap = scene._roomsMap
+
+      const _currentRoom = scene.rooms[0]
+      this.isLoading = true
+      assetsLoad(_currentRoom.walls.map(w => w.src))
+        .then(() => {
+          this.currentRoom = _currentRoom
+          setTimeout(() => {
+            this.isLoading = false
+          }, 100)
+        })
     },
     toggleFly () {
       if (this.isFly) {
@@ -149,11 +166,3 @@ export default {
   }
 }
 </script>
-
-
-<style lang="postcss">
-
-
-
-
-</style>

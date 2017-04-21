@@ -6,13 +6,18 @@ Vue.use(Router)
 
 const routes = [
   {
+    path: '/',
+    name: 'index',
+    component: index
+  },
+  {
     path: '/scene/:id',
     name: 'vr.scene',
     title: 'vr场景',
     component: index
   },
   {
-    path: '/inspiration/:id/vr',
+    path: '/inspirations/:id/vr',
     name: 'inspiration.vr',
     component: index
   }

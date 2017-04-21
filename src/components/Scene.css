@@ -1,0 +1,16 @@
+.scene-loader {
+  position: fixed;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: linear-gradient(transparent 0%, color(#008489 alpha(0.5)) 50%, transparent 100%);
+  &__txt {
+    font-size: 40px;
+    color: #fff;
+  }
+}
