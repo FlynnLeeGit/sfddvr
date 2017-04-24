@@ -25,10 +25,10 @@ const routes = [
 
 const router = new Router({
   mode: 'history',
-  base: '/virtual_reality/',
   scrollBehavior: () => ({
     y: 0
   }),
+  base: '/virtual_reality/',
   routes
 })
 

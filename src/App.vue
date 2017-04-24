@@ -29,12 +29,12 @@ export default {
     if (!routeName) {
       this.showVR = false
     }
+    const getId = () => +this.$route.fullPath.match(/\d+/)[0]
     // android chrome can not get $route.params so here use $route.fullpath
-    const id = +this.$route.fullPath.match(/\d+/)[0]
-    const url = `/_fapi/inspirations/${id}/vr`
-
-    switch (this.$route.name) {
+    switch (routeName) {
       case 'inspiration.vr':
+        const id = getId()
+        const url = `/_fapi/inspirations/${id}/vr`
         axios.get(url)
           .then(({ data }) => {
             this.scene = produceSceneFromInspiration(data)
