@@ -1,17 +1,16 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
 var path = require('path')
 
-var base = '/virtual_reality/'
+var localConfig = require('../localConfig')
 
 module.exports = {
   // 基路径 用于所有资源在一个字目录下
-  base: base,
   build: {
     env: require('./prod.env'),
     index: path.resolve(__dirname, '../dist/index.html'),
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
-    assetsPublicPath: base,
+    assetsPublicPath: localConfig.base,
     productionSourceMap: true,
     // Gzip off by default as many popular static hosts such as
     // Surge or Netlify already gzip all static assets for you.
@@ -30,7 +29,7 @@ module.exports = {
     port: 5000,
     autoOpenBrowser: false,
     assetsSubDirectory: 'static',
-    assetsPublicPath: base,
+    assetsPublicPath: localConfig.base,
     proxyTable: {},
     // CSS Sourcemaps off by default because relative paths are "buggy"
     // with this option, according to the CSS-Loader README

@@ -1,6 +1,7 @@
 require('./check-versions')()
 
 var config = require('../config')
+var localConfig = require('../localConfig')
 if (!process.env.NODE_ENV) {
   process.env.NODE_ENV = JSON.parse(config.dev.env.NODE_ENV)
 }
@@ -55,7 +56,7 @@ Object.keys(proxyTable).forEach(function (context) {
 app.use(
   require('connect-history-api-fallback')({
     // verbose: true,
-    index: config.base + 'index.html'
+    index: localConfig.base + 'index.html'
   })
 )
 

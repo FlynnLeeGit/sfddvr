@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import index from '@/pages/index'
 
 Vue.use(Router)
+import { base } from '../../localConfig'
 
 const routes = [
   {
@@ -28,7 +29,7 @@ const router = new Router({
   scrollBehavior: () => ({
     y: 0
   }),
-  base: '/virtual_reality/',
+  base,
   routes
 })
 
