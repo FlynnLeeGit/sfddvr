@@ -1,5 +1,8 @@
 <template>
   <a-scene @mousedown='toggleFly()'>
+    <a-assets>
+      <audio :src='bgAudio' autoplay></audio>
+    </a-assets>
     <!--空间 整体y偏转-90度让图片与场景强名称一致-->
     <a-entity rotation='0 -90 0'>
       <a-plane v-for='w in currentRoom.walls'
@@ -66,6 +69,7 @@
 
 <script>
 import { assetsLoad } from '@/plugins/utils'
+import bgAudio from '@/assets/audio/rain.mp3'
 
 // sky-box length
 const BOX_SIZE = 5000
@@ -107,7 +111,8 @@ export default {
       isHover: false,
       roomsMap: {},
       currentRoom: {},
-      isLoading: false
+      isLoading: false,
+      bgAudio
     }
   },
   created () {
@@ -126,9 +131,7 @@ export default {
       assetsLoad(_currentRoom.walls.map(w => w.src))
         .then(() => {
           this.currentRoom = _currentRoom
-          setTimeout(() => {
-            this.isLoading = false
-          }, 100)
+          this.isLoading = false
         })
     },
     toggleFly () {
