@@ -46,7 +46,7 @@ export class Anchor {
       // canvas图片跨域
       bg.crossOrigin = 'anonymous'
       bg.onload = () => {
-        this.ctx.drawImage(bg, 0, 0, 256, 256)
+        this.ctx.drawImage(bg, 0, 0, this.width, this.height)
         resolve()
       }
       bg.onerror = reject
@@ -62,6 +62,7 @@ export class Anchor {
     this.ctx.textBaseline = this.opts.baseline
     this.ctx.textAlign = this.opts.textAlign
     const content = this.opts.content
+    this.ctx.fillText('进入', this.width / 2, 80)
     this.ctx.fillText(content, this.width / 2, this.height / 2)
   }
   render () {
