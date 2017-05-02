@@ -1,6 +1,6 @@
 .scene-loader {
   position: fixed;
-  z-index: 2;
+  z-index: 3;
   left: 0;
   right: 0;
   bottom: 0;
@@ -13,4 +13,12 @@
     font-size: 40px;
     color: #fff;
   }
+}
+
+.scene-edit {
+  position: absolute;
+  z-index: 2;
+  right: 10%;
+  top: 10%;
+  background-color: rbga(0, 0, 0, .3);
 }

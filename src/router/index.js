@@ -13,8 +13,7 @@ const routes = [
   },
   {
     path: '/scene/:id',
-    name: 'vr.scene',
-    title: 'vr场景',
+    name: 'scene.vr',
     component: index
   },
   {

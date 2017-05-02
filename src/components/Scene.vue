@@ -1,28 +1,28 @@
 <template>
   <a-scene @mousedown='toggleFly()'>
     <a-assets>
-      <audio :src='bgAudio' autoplay></audio>
+      <audio :src='bgAudio'></audio>
     </a-assets>
     <!--空间 整体y偏转-90度让图片与场景强名称一致-->
     <a-entity rotation='0 -90 0'>
-      <a-plane v-for='w in currentRoom.walls'
-               :key='w.id'
-               :id="getWallId(currentRoom,w)"
-               :src='w.src'
+      <a-plane v-for='(img,direction) in currentSpace.imgs'
+               :key='direction'
+               :id="getImgId(currentSpace,direction)"
+               :src='getImgSrc(img)'
                :width='size'
                :height='size'
-               :position="getPosition(w.direction)"
-               :rotation="getRotation(w.direction)">
+               :position="getPosition(direction)"
+               :rotation="getRotation(direction)">
       </a-plane>
     </a-entity>
 
-    <a-entity :rotation='getLinkRotation(link.y)'
-              v-for='link in currentRoom.links'
-              :key='link.room'>
-      <a-plane src='#city-thumb'
+    <a-entity :rotation='getAnchorRotation(anchor.y)'
+              v-for='anchor in currentSpace.anchor'
+              :key='anchor.sid'>
+      <a-plane :src='getAnchorThumb(anchor.sid)'
                position='0 0 -5'
-               @click="goNextRoom(link.room)"
-               @mouseenter='isHover=true'
+               @click="goNextSpace(anchor.sid)"
+               @mouseenter='setAnchorSid(anchor.sid)'
                @mouseleave='isHover=false'>
 
         <a-animation begin='mouseenter'
@@ -35,7 +35,8 @@
       </a-plane>
     </a-entity>
 
-    <a-camera id='room-camera'
+    <a-camera ref='camera'
+              id='room-camera'
               user-height='0'
               wasd-controls='enabled:false;'>
       <a-cursor :color="isHover?'green':'white'"></a-cursor>
@@ -62,6 +63,46 @@
          v-if='isLoading'>
       <span class="scene-loader__txt">场景加载中...</span>
     </div>
+
+    <div class="scene-edit"
+         v-if='isEditMode'>
+      <el-button v-if='isHover'
+                 @click='deleteLink(currentSpace.id,currentAnchor)'
+                 type='primary'>
+        删除空间
+      </el-button>
+      <el-button v-if='isHover'
+                 @click='editLink(currentSpace.id,currentAnchor)'>
+        编辑 [ {{spaceMap[currentAnchor].space}} ]
+      </el-button>
+      <el-button v-else
+                 @click="addLink(currentSpace.id)"
+                 type="primary">
+        添加空间
+      </el-button>
+      <el-button type='primary'
+                 :loading='isSaving'
+                 @click='saveAnchor(currentSpace)'>保存</el-button>
+    </div>
+
+    <el-dialog v-model='dialogVisible'
+               title='空间关联'>
+      <p>选择此处需要跳转的空间</p>
+      <el-select v-model='spaceVal'
+                 placeholder='请选择'>
+        <el-option v-for='s in sceneData'
+                   :key='s.id'
+                   :label='s.space'
+                   :value='s.id'
+                   :disabled='s.id === currentSpace.id'></el-option>
+      </el-select>
+      <p slot='footer'
+         class="dialog-footer">
+        <el-button @click='dialogVisible = false'>取消</el-button>
+        <el-button type='primary'
+                   @click='confirm(spaceVal,currentSpace,isHover)'>确认</el-button>
+      </p>
+    </el-dialog>
   </a-scene>
 </template>
 
@@ -70,37 +111,42 @@
 <script>
 import { assetsLoad } from '@/plugins/utils'
 import bgAudio from '@/assets/audio/rain.mp3'
+import { imgFilter } from '@/plugins/filters'
+import axios from '@/plugins/axios'
 
 // sky-box length
 const BOX_SIZE = 5000
 
 const ROTATION_MAP = {
-  left: '0 -180 0',
-  right: '0 0 0',
-  front: '0 90 0',
-  back: '0 -90 0',
-  top: '90 90 0',
-  bottom: '-90 90 0'
+  image_left: '0 -180 0',
+  image_right: '0 0 0',
+  image_fornt: '0 90 0',
+  image_back: '0 -90 0',
+  image_up: '90 90 0',
+  image_down: '-90 90 0'
 }
 
 const POSITION_MAP = {
-  left: `0 0 ${BOX_SIZE / 2}`,
-  right: `0 0 -${BOX_SIZE / 2}`,
-  front: `-${BOX_SIZE / 2} 0 0`,
-  back: `${BOX_SIZE / 2} 0 0`,
-  top: `0 ${BOX_SIZE / 2} 0`,
-  bottom: `0 -${BOX_SIZE / 2} 0`
+  image_left: `0 0 ${BOX_SIZE / 2}`,
+  image_right: `0 0 -${BOX_SIZE / 2}`,
+  image_fornt: `-${BOX_SIZE / 2} 0 0`,
+  image_back: `${BOX_SIZE / 2} 0 0`,
+  image_up: `0 ${BOX_SIZE / 2} 0`,
+  image_down: `0 -${BOX_SIZE / 2} 0`
 }
-
+/**
+ * scene example
+ *    {id:1,name:"空间1",imgs:{},links:[]},
+ *    {id:1,name:"空间1",imgs:{},links:[]},
+ *    {id:1,name:"空间1",imgs:{},links:[]}
+ */
 export default {
   props: {
     sceneData: {
-      type: Object,
-      default: () => ({
-        rooms: [
-          { walls: [], links: [] }
-        ]
-      })
+      type: Array,
+      default: () => [{
+        imgs: {}
+      }]
     }
   },
   data () {
@@ -109,28 +155,42 @@ export default {
       isFly: true,
       isChanging: false,
       isHover: false,
-      roomsMap: {},
-      currentRoom: {},
+      spaceMap: {},
+      currentSpace: {},
       isLoading: false,
-      bgAudio
+      bgAudio,
+
+      isEditMode: true,
+      currentAnchor: 0,
+      dialogVisible: false,
+      spaceVal: '',
+      isSaving: false
     }
   },
   created () {
     this.initScene(this.sceneData)
+    if (this.isEditMode) {
+      this.isFly = false
+    }
   },
   methods: {
-    initScene (scene) {
-      scene._roomsMap = {}
-      scene.rooms.forEach(r => {
-        scene._roomsMap[r.id] = r
+    getImgSrc (fname) {
+      return imgFilter(fname)
+    },
+    initScene (spaces) {
+      // 空间对应表
+      const _spaceMap = {}
+      spaces.forEach(space => {
+        _spaceMap[space.id] = space
       })
-      this.roomsMap = scene._roomsMap
+      this.spaceMap = _spaceMap
 
-      const _currentRoom = scene.rooms[0]
+      const _currentSpace = spaces[0]
       this.isLoading = true
-      assetsLoad(_currentRoom.walls.map(w => w.src))
+      const assets = Object.keys(_currentSpace.imgs).map(k => this.getImgSrc(_currentSpace.imgs[k]))
+      assetsLoad(assets)
         .then(() => {
-          this.currentRoom = _currentRoom
+          this.currentSpace = _currentSpace
           this.isLoading = false
         })
     },
@@ -139,32 +199,81 @@ export default {
         this.isFly = false
       }
     },
+
     getRotation (direction) {
       return ROTATION_MAP[direction]
     },
     getPosition (direction) {
       return POSITION_MAP[direction]
     },
-    getWallId (room, wall) {
-      return `room#${room.id}_${wall.direction}`
+    getImgId (space, direction) {
+      return `room#${space.id}_${direction}`
     },
-    goNextRoom (roomId) {
+    setAnchorSid (sid) {
+      this.isHover = true
+      this.currentAnchor = sid
+    },
+    goNextSpace (sid) {
       // this.currentRoom = roomId
       this.isChanging = true
       setTimeout(() => {
-        this.currentRoom = this.roomsMap[roomId]
+        this.currentSpace = this.spaceMap[sid]
       }, 150)
     },
     changingEnd () {
       this.isChanging = false
     },
-    getLinkRotation (y) {
+    getAnchorRotation (y) {
       return `0 ${y} 0`
+    },
+    getAnchorThumb (sid) {
+      return imgFilter(this.spaceMap[sid].imgs.image_left, 'case380')
+    },
+    addLink (sid) {
+      this.dialogVisible = true
+    },
+    editLink (sid, currentAnchor) {
+      this.dialogVisible = true
+      this.spaceVal = currentAnchor
+    },
+    deleteLink (sid, currentAnchor) {
+      this.$confirm('确认删除此空间链接么？')
+        .then(() => {
+          const currentAnchorObj = this.currentSpace.anchor.filter(a => a.sid === currentAnchor)[0]
+          const aIndex = this.currentSpace.anchor.indexOf(currentAnchorObj)
+          this.currentSpace.anchor.splice(aIndex, 1)
+        })
+        .catch(() => { })
+    },
+    confirm (spaceVal, currentSpace, isHover) {
+      if (isHover) {
+        const currentAnchorObj = currentSpace.anchor.filter(a => a.sid === this.currentAnchor)[0]
+        currentAnchorObj.sid = spaceVal
+        this.dialogVisible = false
+      }
+      if (!isHover) {
+        currentSpace.anchor.push({
+          sid: spaceVal,
+          y: this.$refs.camera.getAttribute('rotation').y
+        })
+        this.dialogVisible = false
+      }
+    },
+    saveAnchor (currentSpace) {
+      this.isSaving = true
+      axios.post(`/_bapi/spaces/${currentSpace.id}`, {
+        anchor: currentSpace.anchor
+      })
+        .then(res => {
+          this.$message.success('锚点更新成功！')
+          this.isSaving = false
+        })
+        .catch(() => { })
     }
   },
   watch: {
-    sceneData (newScene) {
-      this.initScene(newScene)
+    sceneData (newSpaces) {
+      this.initScene(newSpaces)
     }
   }
 }
