@@ -19,20 +19,20 @@
     <a-entity :rotation='getAnchorRotation(anchor.y)'
               v-for='anchor in currentSpace.anchor'
               :key='anchor.sid'>
-      <a-plane :src='getAnchorThumb(anchor.sid)'
-               position='0 0 -5'
-               @click="goNextSpace(anchor.sid)"
-               @mouseenter='setAnchorSid(anchor.sid)'
-               @mouseleave='isHover=false'>
-
+      <anchor :fname='anchor.thumb'
+              :content='spaceMap[anchor.sid].space'
+              @click.native="goNextSpace(anchor.sid)"
+              @mouseenter.native='setAnchorSid(anchor.sid)'
+              @mouseleave.native='isHover=false'>
         <a-animation begin='mouseenter'
                      end='mouseleave'
                      attribute='position'
                      direction='alternate'
                      to='0 0.1 -5'
                      repeat='indefinite'
-                     dur='500'></a-animation>
-      </a-plane>
+                     dur='500'>
+        </a-animation>
+      </anchor>
     </a-entity>
 
     <a-camera ref='camera'
@@ -113,6 +113,7 @@ import { assetsLoad } from '@/plugins/utils'
 import bgAudio from '@/assets/audio/rain.mp3'
 import { imgFilter } from '@/plugins/filters'
 import axios from '@/plugins/axios'
+import Anchor from './Anchor.vue'
 
 // sky-box length
 const BOX_SIZE = 5000
@@ -141,6 +142,9 @@ const POSITION_MAP = {
  *    {id:1,name:"空间1",imgs:{},links:[]}
  */
 export default {
+  components: {
+    Anchor
+  },
   props: {
     sceneData: {
       type: Array,
@@ -174,8 +178,8 @@ export default {
     }
   },
   methods: {
-    getImgSrc (fname) {
-      return imgFilter(fname)
+    getImgSrc (fname, suffix) {
+      return imgFilter(fname, suffix)
     },
     initScene (spaces) {
       // 空间对应表
@@ -192,6 +196,9 @@ export default {
         .then(() => {
           this.currentSpace = _currentSpace
           this.isLoading = false
+        })
+        .catch(e => {
+          window.alert('资源加载失败')
         })
     },
     toggleFly () {
@@ -226,9 +233,6 @@ export default {
     getAnchorRotation (y) {
       return `0 ${y} 0`
     },
-    getAnchorThumb (sid) {
-      return imgFilter(this.spaceMap[sid].imgs.image_left, 'case380')
-    },
     addLink (sid) {
       this.dialogVisible = true
     },
@@ -249,12 +253,14 @@ export default {
       if (isHover) {
         const currentAnchorObj = currentSpace.anchor.filter(a => a.sid === this.currentAnchor)[0]
         currentAnchorObj.sid = spaceVal
+        currentAnchorObj.thumb = this.spaceMap[spaceVal].imgs.image_left
         this.dialogVisible = false
       }
       if (!isHover) {
         currentSpace.anchor.push({
           sid: spaceVal,
-          y: this.$refs.camera.getAttribute('rotation').y
+          y: this.$refs.camera.getAttribute('rotation').y,
+          thumb: this.spaceMap[spaceVal].imgs.image_left
         })
         this.dialogVisible = false
       }
