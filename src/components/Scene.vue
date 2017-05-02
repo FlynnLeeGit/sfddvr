@@ -8,7 +8,7 @@
       <a-plane v-for='(img,direction) in currentSpace.imgs'
                :key='direction'
                :id="getImgId(currentSpace,direction)"
-               :src='getImgSrc(img)'
+               :src="getImgSrc(img,'2048')"
                :width='size'
                :height='size'
                :position="getPosition(direction)"
@@ -19,8 +19,7 @@
     <a-entity :rotation='getAnchorRotation(anchor.y)'
               v-for='anchor in currentSpace.anchor'
               :key='anchor.sid'>
-      <anchor :fname='anchor.thumb'
-              :content='spaceMap[anchor.sid].space'
+      <anchor :content='spaceMap[anchor.sid].space'
               @click.native="goNextSpace(anchor.sid)"
               @mouseenter.native='setAnchorSid(anchor.sid)'
               @mouseleave.native='isHover=false'>
@@ -191,7 +190,7 @@ export default {
 
       const _currentSpace = spaces[0]
       this.isLoading = true
-      const assets = Object.keys(_currentSpace.imgs).map(k => this.getImgSrc(_currentSpace.imgs[k]))
+      const assets = Object.keys(_currentSpace.imgs).map(k => this.getImgSrc(_currentSpace.imgs[k], '2048'))
       assetsLoad(assets)
         .then(() => {
           this.currentSpace = _currentSpace

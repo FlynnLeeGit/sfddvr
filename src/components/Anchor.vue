@@ -6,13 +6,9 @@
 </template>
 <script>
 import { Anchor } from '@/plugins/utils'
-import { imgFilter } from '@/plugins/filters'
+
 export default {
   props: {
-    fname: {
-      type: String,
-      default: ''
-    },
     content: {
       type: String,
       default: ''
@@ -20,24 +16,27 @@ export default {
   },
   data () {
     return {
-      dataUrl: '',
-      anchor: null
+      dataUrl: ''
     }
   },
   methods: {
     initAnchor () {
-      const anchor = new Anchor({
-        content: this.content,
-        thumb: imgFilter(this.fname, 'case380')
-      })
-      anchor.render()
-        .then(dataUrl => {
-          this.dataUrl = dataUrl
-          this.$refs.anchor.setAttribute('src', dataUrl)
+      if (this.fname) {
+        const anchor = new Anchor({
+          content: this.content,
+          thumb: '/virtual_reality/static/thumb.jpg'
         })
-        .catch(e => {
-          console.error(e) // eslint-disable-line
-        })
+        anchor.render()
+          .then(dataUrl => {
+            this.dataUrl = dataUrl
+            this.$refs.anchor.setAttribute('src', dataUrl)
+          })
+          .catch(e => {
+            console.error(e) // eslint-disable-line
+          })
+      } else {
+        console.error('空间图片加载失败') // eslint-disable-line
+      }
     }
   },
   mounted () {
