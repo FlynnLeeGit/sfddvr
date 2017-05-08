@@ -22,7 +22,7 @@
       </a-plane>
     </a-entity>
 
-    <a-entity :rotation='getAnchorRotation(anchor.y)'
+    <a-entity :rotation='getAnchorRotation(anchor.x,anchor.y)'
               v-for='anchor in currentSpace.anchor'
               v-if='!isChanging'
               :key='anchor.sid'>
@@ -45,7 +45,8 @@
               id='room-camera'
               user-height='0'
               wasd-controls='enabled:false;'>
-      <a-cursor :color="isHover?'green':'white'"></a-cursor>
+      <a-cursor v-if='cursor'
+                :color="isHover?'green':'white'"></a-cursor>
       <a-animation v-if='isFly'
                    attribute='rotation'
                    to='0 -360 0'
@@ -164,6 +165,10 @@ export default {
       default: () => [{
         imgs: {}
       }]
+    },
+    cursor: {
+      type: Boolean,
+      default: true
     }
   },
   data () {
@@ -256,8 +261,8 @@ export default {
           this.$message.error('资源加载失败')
         })
     },
-    getAnchorRotation (y) {
-      return `0 ${y} 0`
+    getAnchorRotation (x, y) {
+      return `${x || 0} ${y || 0} 0`
     },
 
     // 编辑模式方法
@@ -269,26 +274,23 @@ export default {
       this.spaceVal = currentAnchor
     },
     deleteLink (sid, currentAnchor) {
-      this.$confirm('确认删除此空间链接么？')
-        .then(() => {
-          const currentAnchorObj = this.currentSpace.anchor.filter(a => a.sid === currentAnchor)[0]
-          const aIndex = this.currentSpace.anchor.indexOf(currentAnchorObj)
-          this.currentSpace.anchor.splice(aIndex, 1)
-        })
-        .catch(() => { })
+      const currentAnchorObj = this.currentSpace.anchor.filter(a => a.sid === currentAnchor)[0]
+      const aIndex = this.currentSpace.anchor.indexOf(currentAnchorObj)
+      this.currentSpace.anchor.splice(aIndex, 1)
     },
     confirm (spaceVal, currentSpace, isHover) {
+      // 编辑
       if (isHover) {
         const currentAnchorObj = currentSpace.anchor.filter(a => a.sid === this.currentAnchor)[0]
         currentAnchorObj.sid = spaceVal
-        currentAnchorObj.thumb = this.spaceMap[spaceVal].imgs.image_left
         this.dialogVisible = false
       }
+      // 添加
       if (!isHover) {
         currentSpace.anchor.push({
           sid: spaceVal,
-          y: this.$refs.camera.getAttribute('rotation').y,
-          thumb: this.spaceMap[spaceVal].imgs.image_left
+          x: this.$refs.camera.getAttribute('rotation').x,
+          y: this.$refs.camera.getAttribute('rotation').y
         })
         this.dialogVisible = false
       }
