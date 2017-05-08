@@ -13,11 +13,18 @@
                :height='size'
                :position="getPosition(direction)"
                :rotation="getRotation(direction)">
+        <a-animation v-if='isChanging'
+                     @animationend='isChanging = false'
+                     direction='alternate'
+                     attribute='material.color'
+                     dur='500'>
+        </a-animation>
       </a-plane>
     </a-entity>
 
     <a-entity :rotation='getAnchorRotation(anchor.y)'
               v-for='anchor in currentSpace.anchor'
+              v-if='!isChanging'
               :key='anchor.sid'>
       <anchor :content='spaceMap[anchor.sid].space'
               @click.native="goNextSpace(anchor.sid)"
@@ -45,15 +52,12 @@
                    repeat='indefinite'
                    dur='100000'
                    easing='linear'></a-animation>
-      <a-animation @animationend='changingEnd()'
-                   v-if='isChanging'
-                   attribute='zoom'
-                   from='1'
-                   to='.1'
-                   dur='300'
-                   easing='linear'
-                   direction='alternate'
-                   repeat='1'></a-animation>
+      <a-animation v-if='isChanging'
+                   attribute='rotation'
+                   to='0 0 0'
+                   dur='100'></a-animation>
+
+      </a-animation>
     </a-camera>
 
     <a-light type="ambient"></a-light>
@@ -109,13 +113,23 @@
 
 <script>
 import { assetsLoad } from '@/plugins/utils'
-import bgAudio from '@/assets/audio/rain.mp3'
 import { imgFilter } from '@/plugins/filters'
 import axios from '@/plugins/axios'
 import Anchor from './Anchor.vue'
 
+// audios
+import audioCanon from '@/assets/audio/canon.aac'
+import audioWedding from '@/assets/audio/wedding.mp3'
+
+const AUDIO_LIST = [
+  audioCanon,
+  audioWedding
+]
+
+const RandomAudioId = Number.parseInt(Math.random() * AUDIO_LIST.length)
+
 // sky-box length
-const BOX_SIZE = 5000
+const BOX_SIZE = 50
 
 const ROTATION_MAP = {
   image_left: '0 -180 0',
@@ -161,9 +175,9 @@ export default {
       spaceMap: {},
       currentSpace: {},
       isLoading: false,
-      bgAudio,
+      bgAudioIndex: RandomAudioId,
 
-      isEditMode: true,
+      isEditMode: this.$route.query.edit,
       currentAnchor: 0,
       dialogVisible: false,
       spaceVal: '',
@@ -176,9 +190,18 @@ export default {
       this.isFly = false
     }
   },
+  computed: {
+    bgAudio () {
+      return AUDIO_LIST[this.bgAudioIndex]
+    }
+  },
   methods: {
     getImgSrc (fname, suffix) {
       return imgFilter(fname, suffix)
+    },
+    loadSpaceAssets (newSpace) {
+      const assets = Object.keys(newSpace.imgs).map(k => this.getImgSrc(newSpace.imgs[k], '2048'))
+      return assetsLoad(assets)
     },
     initScene (spaces) {
       // 空间对应表
@@ -190,14 +213,15 @@ export default {
 
       const _currentSpace = spaces[0]
       this.isLoading = true
-      const assets = Object.keys(_currentSpace.imgs).map(k => this.getImgSrc(_currentSpace.imgs[k], '2048'))
-      assetsLoad(assets)
+
+      this.loadSpaceAssets(_currentSpace)
         .then(() => {
           this.currentSpace = _currentSpace
           this.isLoading = false
+          this.isChanging = true
         })
         .catch(e => {
-          window.alert('资源加载失败')
+          this.$message.error('资源加载失败')
         })
     },
     toggleFly () {
@@ -205,7 +229,6 @@ export default {
         this.isFly = false
       }
     },
-
     getRotation (direction) {
       return ROTATION_MAP[direction]
     },
@@ -220,18 +243,24 @@ export default {
       this.currentAnchor = sid
     },
     goNextSpace (sid) {
-      // this.currentRoom = roomId
-      this.isChanging = true
-      setTimeout(() => {
-        this.currentSpace = this.spaceMap[sid]
-      }, 150)
-    },
-    changingEnd () {
-      this.isChanging = false
+      const _currentSpace = this.spaceMap[sid]
+      const loadStart = this.$notify.info('资源加载中...')
+      this.loadSpaceAssets(_currentSpace)
+        .then(() => {
+          loadStart.close()
+          this.currentSpace = _currentSpace
+          this.isFly = true
+          this.isChanging = true
+        })
+        .catch(() => {
+          this.$message.error('资源加载失败')
+        })
     },
     getAnchorRotation (y) {
       return `0 ${y} 0`
     },
+
+    // 编辑模式方法
     addLink (sid) {
       this.dialogVisible = true
     },

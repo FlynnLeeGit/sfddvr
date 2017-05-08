@@ -1,7 +1,15 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
-import { Button, MessageBox, Message, Dialog, Select, Option } from 'element-ui'
+import {
+  Button,
+  MessageBox,
+  Message,
+  Dialog,
+  Select,
+  Option,
+  Notification
+} from 'element-ui'
 import App from './App'
 import router from './router'
 import * as filters from './plugins/filters'
@@ -23,6 +31,7 @@ Vue.prototype.$alert = MessageBox.alert
 Vue.prototype.$confirm = MessageBox.confirm
 Vue.prototype.$prompt = MessageBox.prompt
 Vue.prototype.$message = Message
+Vue.prototype.$notify = Notification
 
 /* eslint-disable no-new */
 new Vue({

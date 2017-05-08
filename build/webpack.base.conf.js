@@ -55,7 +55,7 @@ module.exports = {
         }
       },
       {
-        test: /\.(mp3)$/,
+        test: /\.(mp3|aac)$/,
         loader: 'url-loader',
         options: {
           limit: 10000,
