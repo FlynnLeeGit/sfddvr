@@ -56,8 +56,14 @@
       <a-animation v-if='isChanging'
                    attribute='rotation'
                    to='0 0 0'
-                   dur='100'></a-animation>
-
+                   dur='100'>
+      </a-animation>
+      <a-animation v-if='isZooming'
+                   attribute='zoom'
+                   @animationend='isZooming=false'
+                   :from='zoomFrom'
+                   :to='zoomTo'
+                   dur='300'>
       </a-animation>
     </a-camera>
 
@@ -66,6 +72,33 @@
     <div class="scene-loader"
          v-if='isLoading'>
       <span class="scene-loader__txt">场景加载中...</span>
+    </div>
+
+    <div class="scene-toolbar">
+      <div class="space-name">
+        {{currentSpace.space}}
+      </div>
+
+      <ul class="scene-spaces">
+        <li @click.capture='goNextSpace(space.id)'
+            :active='space.id===currentSpace.id'
+            v-for='space in sceneData'>
+          <img :src="getImgSrc(space.imgs['image_fornt'],'256')">
+          <p>{{space.space}}</p>
+        </li>
+      </ul>
+
+      <ul class="scene-control">
+        <li>
+          <i class="iconfont icon-back"></i>
+        </li>
+        <li>
+          <i class="iconfont icon-stop"></i>
+        </li>
+        <li>
+          <i class="iconfont icon-more"></i>
+        </li>
+      </ul>
     </div>
 
     <div class="scene-edit"
@@ -149,6 +182,12 @@ const POSITION_MAP = {
   image_up: `0 ${BOX_SIZE / 2} 0`,
   image_down: `0 -${BOX_SIZE / 2} 0`
 }
+
+const LEFT = 37
+const UP = 38
+const RIGHT = 39
+const DOWN = 40
+const SPEED = 2
 /**
  * scene example
  *    {id:1,name:"空间1",imgs:{},links:[]},
@@ -181,6 +220,10 @@ export default {
       currentSpace: {},
       isLoading: false,
       bgAudioIndex: RandomAudioId,
+      keypress: {},
+      isZooming: false,
+      zoomFrom: 0.9,
+      zoomTo: 1,
 
       isEditMode: this.$route.query.edit,
       currentAnchor: 0,
@@ -195,12 +238,63 @@ export default {
       this.isFly = false
     }
   },
+  mounted () {
+    document.addEventListener('keydown', this.keydown, false)
+    document.addEventListener('keyup', this.keyup, false)
+    document.addEventListener('mousewheel', this.mousewheel, false)
+    window.requestAnimationFrame(this.move)
+  },
   computed: {
     bgAudio () {
       return AUDIO_LIST[this.bgAudioIndex]
     }
   },
   methods: {
+    mousewheel (e) {
+      this.toggleFly()
+      let s = e.deltaY > 0 ? 0.8 : 1.2
+      this.isZooming = true
+      this.zoomFrom = this.zoomTo
+      this.zoomTo = this.zoomFrom * s
+      if (this.zoomTo < 0.8) {
+        this.zoomTo = 0.8
+      }
+      if (this.zoomTo > 1.6) {
+        this.zoomTo = 1.6
+      }
+    },
+    keydown (e) {
+      if (!this.keypress[e.which]) {
+        this.keypress[e.which] = 1
+      }
+    },
+    keyup (e) {
+      if (this.keypress[e.which]) {
+        delete this.keypress[e.which]
+      }
+    },
+    move () {
+      window.requestAnimationFrame(this.move)
+      this.renderCamera()
+    },
+    renderCamera () {
+      if (Object.keys(this.keypress)) {
+        let { x, y, z } = this.$refs.camera.getAttribute('rotation')
+        if (this.keypress[LEFT]) {
+          y += SPEED
+        }
+        if (this.keypress[RIGHT]) {
+          y -= SPEED
+        }
+        if (this.keypress[UP]) {
+          x += SPEED
+        }
+        if (this.keypress[DOWN]) {
+          x -= SPEED
+        }
+        this.$refs.camera.setAttribute('rotation', { x, y, z })
+      }
+    },
     getImgSrc (fname, suffix) {
       return imgFilter(fname, suffix)
     },
@@ -248,6 +342,10 @@ export default {
       this.currentAnchor = sid
     },
     goNextSpace (sid) {
+      if (sid === this.currentSpace.id) {
+        this.isFly = true
+        return
+      }
       const _currentSpace = this.spaceMap[sid]
       const loadStart = this.$notify.info('资源加载中...')
       this.loadSpaceAssets(_currentSpace)
@@ -256,6 +354,9 @@ export default {
           this.currentSpace = _currentSpace
           this.isFly = true
           this.isChanging = true
+          this.isZooming = true
+          this.zoomFrom = 0.9
+          this.zoomTo = 1
         })
         .catch(() => {
           this.$message.error('资源加载失败')
