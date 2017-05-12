@@ -1,15 +1,52 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>中孚空间-全景预览</title>
-    <link rel="icon" href="/favicon.png"/>
-    <script src="//cdn.bootcss.com/aframe/0.5.0/aframe.min.js"></script>
-    <link href="https://cdn.bootcss.com/element-ui/1.2.9/theme-default/index.css" rel="stylesheet">
-    <link rel="stylesheet" href="//at.alicdn.com/t/font_iwo55e2ez1j4te29.css">
-  </head>
-  <body>
-    <div id="app"></div>>
-    <!-- built files will be auto injected -->
-  </body>
+
+<head>
+  <meta charset="utf-8">
+  <title>中孚空间-全景预览</title>
+  <link rel="icon" href="/favicon.png" />
+  <script src="//cdn.bootcss.com/aframe/0.5.0/aframe.min.js"></script>
+  <link href="https://cdn.bootcss.com/element-ui/1.2.9/theme-default/index.css" rel="stylesheet">
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_iwo55e2ez1j4te29.css">
+  <style>
+    .scene-loader {
+      position: fixed;
+      z-index: 3;
+      width: 100%;
+      padding-top: 20%;
+      font-size: 20px;
+      text-align: center;
+    }
+
+    .scene-loader__txt {
+      padding: 5px 10px;
+      border-radius: 3px;
+      border: 1px solid;
+      color: #333;
+      background-image: linear-gradient(transparent 0%, rgba(255, 255, 255, .5) 100%);
+    }
+
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <div class="scene-loader">
+      <span class="scene-loader__txt">
+      渲染器加载中...
+     </span>
+    </div>
+  </div>
+  <script>
+    function supportWebgl() {
+      return !!window.WebGLRenderingContext
+    }
+    if (!supportWebgl()) {
+      alert('抱歉,您的浏览器不支持Webgl技术,VR全景不能观看')
+    }
+
+  </script>
+  <!-- built files will be auto injected -->
+</body>
+
 </html>

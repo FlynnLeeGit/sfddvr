@@ -1,6 +1,5 @@
 <template>
   <scene :scene-data='scene'
-         :cursor='needCursor'
          v-if='showVR' />
   <span v-else>路径错误</span>
 </template>
@@ -37,7 +36,6 @@ export default {
         axios.get(url)
           .then(({ data }) => {
             this.scene = [data]
-            this.needCursor = false
           })
         break
       case 'scene.vr':

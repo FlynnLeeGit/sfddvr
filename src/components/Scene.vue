@@ -45,7 +45,7 @@
               id='room-camera'
               user-height='0'
               wasd-controls='enabled:false;'>
-      <a-cursor v-if='cursor'
+      <a-cursor v-if='isMultiSpaces'
                 :color="isHover?'green':'white'"></a-cursor>
       <a-animation v-if='isFly'
                    attribute='rotation'
@@ -70,11 +70,15 @@
     <a-light type="ambient"></a-light>
 
     <div class="scene-loader"
-         v-if='isLoading'>
-      <span class="scene-loader__txt">场景加载中...</span>
+         v-show='isLoading'>
+
+      <span class="scene-loader__txt">
+        <img class="scene-loader__spin"
+             src="../assets/loading.png">场景加载中</span>
     </div>
 
-    <div class="scene-toolbar">
+    <div v-if='!isHideControl'
+         class="scene-toolbar">
       <div class="space-name">
         {{currentSpace.space}}
       </div>
@@ -204,10 +208,6 @@ export default {
       default: () => [{
         imgs: {}
       }]
-    },
-    cursor: {
-      type: Boolean,
-      default: true
     }
   },
   data () {
@@ -226,6 +226,7 @@ export default {
       zoomTo: 1,
 
       isEditMode: this.$route.query.edit,
+
       currentAnchor: 0,
       dialogVisible: false,
       spaceVal: '',
@@ -247,6 +248,12 @@ export default {
   computed: {
     bgAudio () {
       return AUDIO_LIST[this.bgAudioIndex]
+    },
+    isMultiSpaces () {
+      return this.sceneData.length > 1
+    },
+    isHideControl () {
+      return this.$route.query.hideControl || (!this.isMultiSpaces)
     }
   },
   methods: {
@@ -347,10 +354,10 @@ export default {
         return
       }
       const _currentSpace = this.spaceMap[sid]
-      const loadStart = this.$notify.info('资源加载中...')
+      this.isLoading = true
       this.loadSpaceAssets(_currentSpace)
         .then(() => {
-          loadStart.close()
+          this.isLoading = false
           this.currentSpace = _currentSpace
           this.isFly = true
           this.isChanging = true
