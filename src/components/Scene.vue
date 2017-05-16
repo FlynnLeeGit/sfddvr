@@ -30,12 +30,22 @@
               @click.native="goNextSpace(anchor.sid)"
               @mouseenter.native='setAnchorSid(anchor.sid)'
               @mouseleave.native='isHover=false'>
-        <a-animation begin='mouseenter'
+        <!--<a-animation begin='mouseenter'
                      end='mouseleave'
                      attribute='position'
                      direction='alternate'
-                     to='0 0.1 -5'
+                     to='0 0 -5.2'
                      repeat='indefinite'
+                     dur='500'>
+        </a-animation>-->
+        <a-animation begin='mouseenter'
+                     attribute='rotation'
+                     to='0 0 0'
+                     dur='500'>
+        </a-animation>
+        <a-animation begin='mouseleave'
+                     attribute='rotation'
+                     to='-30 0 0'
                      dur='500'>
         </a-animation>
       </anchor>
@@ -74,7 +84,7 @@
 
       <span class="scene-loader__txt">
         <img class="scene-loader__spin"
-             src="../assets/loading.png">场景加载中</span>
+             src="../assets/loading.png">场景加载中{{loadingProcess}}/{{loadingProcessAll}}</span>
     </div>
 
     <div v-if='!isHideControl'
@@ -87,7 +97,7 @@
         <li @click.capture='goNextSpace(space.id)'
             :active='space.id===currentSpace.id'
             v-for='space in sceneData'>
-          <img :src="getImgSrc(space.imgs['image_fornt'],'256')">
+          <img :src="getImgSrc(space.thumb,'256')">
           <p>{{space.space}}</p>
         </li>
       </ul>
@@ -187,11 +197,11 @@ const POSITION_MAP = {
   image_down: `0 -${BOX_SIZE / 2} 0`
 }
 
-const LEFT = 37
-const UP = 38
-const RIGHT = 39
-const DOWN = 40
-const SPEED = 2
+// const LEFT = 37
+// const UP = 38
+// const RIGHT = 39
+// const DOWN = 40
+// const SPEED = 2
 /**
  * scene example
  *    {id:1,name:"空间1",imgs:{},links:[]},
@@ -219,6 +229,8 @@ export default {
       spaceMap: {},
       currentSpace: {},
       isLoading: false,
+      loadingProcess: 0,
+      loadingProcessAll: 0,
       bgAudioIndex: RandomAudioId,
       keypress: {},
       isZooming: false,
@@ -240,10 +252,10 @@ export default {
     }
   },
   mounted () {
-    document.addEventListener('keydown', this.keydown, false)
-    document.addEventListener('keyup', this.keyup, false)
+    // document.addEventListener('keydown', this.keydown, false)
+    // document.addEventListener('keyup', this.keyup, false)
     document.addEventListener('mousewheel', this.mousewheel, false)
-    window.requestAnimationFrame(this.move)
+    // window.requestAnimationFrame(this.move)
   },
   computed: {
     bgAudio () {
@@ -270,44 +282,53 @@ export default {
         this.zoomTo = 1.6
       }
     },
-    keydown (e) {
-      if (!this.keypress[e.which]) {
-        this.keypress[e.which] = 1
-      }
-    },
-    keyup (e) {
-      if (this.keypress[e.which]) {
-        delete this.keypress[e.which]
-      }
-    },
-    move () {
-      window.requestAnimationFrame(this.move)
-      this.renderCamera()
-    },
-    renderCamera () {
-      if (Object.keys(this.keypress)) {
-        let { x, y, z } = this.$refs.camera.getAttribute('rotation')
-        if (this.keypress[LEFT]) {
-          y += SPEED
-        }
-        if (this.keypress[RIGHT]) {
-          y -= SPEED
-        }
-        if (this.keypress[UP]) {
-          x += SPEED
-        }
-        if (this.keypress[DOWN]) {
-          x -= SPEED
-        }
-        this.$refs.camera.setAttribute('rotation', { x, y, z })
-      }
-    },
+    // keydown (e) {
+    //   if (!this.keypress[e.which]) {
+    //     this.keypress[e.which] = 1
+    //   }
+    // },
+    // keyup (e) {
+    //   if (this.keypress[e.which]) {
+    //     delete this.keypress[e.which]
+    //   }
+    // },
+    // move () {
+    //   window.requestAnimationFrame(this.move)
+    //   this.renderCamera()
+    // },
+    // renderCamera () {
+    //   if (Object.keys(this.keypress)) {
+    //     let { x, y, z } = this.$refs.camera.getAttribute('rotation')
+    //     if (this.keypress[LEFT]) {
+    //       y += SPEED
+    //     }
+    //     if (this.keypress[RIGHT]) {
+    //       y -= SPEED
+    //     }
+    //     if (this.keypress[UP]) {
+    //       x += SPEED
+    //     }
+    //     if (this.keypress[DOWN]) {
+    //       x -= SPEED
+    //     }
+    //     this.$refs.camera.setAttribute('rotation', { x, y, z })
+    //   }
+    // },
     getImgSrc (fname, suffix) {
+      if (this.$route.name === 'share.vr') {
+        return `https://dn-st.baogaoyezhu.com/${fname}_${suffix}`
+      }
       return imgFilter(fname, suffix)
     },
     loadSpaceAssets (newSpace) {
       const assets = Object.keys(newSpace.imgs).map(k => this.getImgSrc(newSpace.imgs[k], '2048'))
-      return assetsLoad(assets)
+      return assetsLoad.init({
+        assets,
+        update: (process, processAll) => {
+          this.loadingProcess = process
+          this.loadingProcessAll = processAll
+        }
+      })
     },
     initScene (spaces) {
       // 空间对应表

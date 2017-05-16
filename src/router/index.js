@@ -20,6 +20,11 @@ const routes = [
     path: '/inspirations/:id/vr',
     name: 'inspiration.vr',
     component: index
+  },
+  {
+    path: '/share/vr',
+    name: 'share.vr',
+    component: index
   }
 ]
 

@@ -3,11 +3,28 @@ import axios from '@/plugins/axios'
 //   imgFilter
 // } from '@/plugins/filters'
 
-export const assetsLoad = assets => {
-  const assetsPromise = assets.map(src => {
-    return axios.get(src)
-  })
-  return Promise.all(assetsPromise)
+// export const assetsLoad = assets => {
+//   const assetsPromise = assets.map(src => {
+//     return axios.get(src)
+//   })
+//   return Promise.all(assetsPromise)
+// }
+
+export const assetsLoad = {
+  process: 0,
+  processAll: 0,
+  init ({ assets, update }) {
+    this.update = update
+    this.process = 0
+    this.processAll = assets.length
+    return Promise.all(
+      assets.map(src => {
+        return axios.get(src).then(() => {
+          this.update(++this.process, this.processAll)
+        })
+      })
+    )
+  }
 }
 
 export class Anchor {

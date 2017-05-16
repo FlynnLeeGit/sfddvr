@@ -6,6 +6,7 @@
 <script>
 import Scene from './components/Scene'
 import axios from '@/plugins/axios'
+import shareScene from './shareScene'
 
 export default {
   name: 'App',
@@ -28,22 +29,24 @@ export default {
     }
     const getId = () => +this.$route.fullPath.match(/\d+/)[0]
     // android chrome can not get $route.params so here use $route.fullpath
-    const id = getId()
     let url
     switch (routeName) {
       case 'inspiration.vr':
-        url = `/_fapi/inspirations/${id}/vr`
+        url = `/_fapi/inspirations/${getId()}/vr`
         axios.get(url)
           .then(({ data }) => {
             this.scene = [data]
           })
         break
       case 'scene.vr':
-        url = `/_fapi/planschemes/${id}/space`
+        url = `/_fapi/planschemes/${getId()}/space`
         axios.get(url)
           .then(({ data }) => {
             this.scene = data
           })
+        break
+      case 'share.vr':
+        this.scene = shareScene
         break
       default:
         break

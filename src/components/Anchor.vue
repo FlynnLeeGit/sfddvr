@@ -1,5 +1,6 @@
 <template>
   <a-plane ref='anchor'
+           rotation='-30 0 0'
            position='0 0 -5'>
     <slot></slot>
   </a-plane>
@@ -18,6 +19,7 @@ export default {
     initAnchor () {
       const anchor = new Anchor({
         content: this.content,
+
         thumb: '/virtual_reality/static/thumb.jpg'
       })
       anchor.render()
