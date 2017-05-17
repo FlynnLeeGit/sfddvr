@@ -2,6 +2,10 @@
   <a-scene @mousedown='toggleFly()'>
     <a-assets>
       <audio :src='bgAudio'></audio>
+      <a-asset-item id='door'
+                    :src='door'></a-asset-item>
+      <a-asset-item id="zwfont"
+                    :src='zwFont'></a-asset-item>
     </a-assets>
     <!--空间 整体y偏转-90度让图片与场景强名称一致-->
     <a-entity rotation='0 -90 0'>
@@ -29,26 +33,8 @@
       <anchor :content='spaceMap[anchor.sid].space'
               @click.native="goNextSpace(anchor.sid)"
               @mouseenter.native='setAnchorSid(anchor.sid)'
-              @mouseleave.native='isHover=false'>
-        <!--<a-animation begin='mouseenter'
-                     end='mouseleave'
-                     attribute='position'
-                     direction='alternate'
-                     to='0 0 -5.2'
-                     repeat='indefinite'
-                     dur='500'>
-        </a-animation>-->
-        <a-animation begin='mouseenter'
-                     attribute='rotation'
-                     to='0 0 0'
-                     dur='500'>
-        </a-animation>
-        <a-animation begin='mouseleave'
-                     attribute='rotation'
-                     to='-30 0 0'
-                     dur='500'>
-        </a-animation>
-      </anchor>
+              @mouseleave.native='isHover=false' />
+
     </a-entity>
 
     <a-camera ref='camera'
@@ -169,6 +155,10 @@ import Anchor from './Anchor.vue'
 import audioCanon from '@/assets/audio/canon.aac'
 import audioWedding from '@/assets/audio/wedding.mp3'
 
+// font
+import zwFont from '@/assets/zwfont.json'
+import door from '@/assets/door.png'
+
 const AUDIO_LIST = [
   audioCanon,
   audioWedding
@@ -223,6 +213,8 @@ export default {
   data () {
     return {
       size: BOX_SIZE,
+      zwFont,
+      door,
       isFly: true,
       isChanging: false,
       isHover: false,

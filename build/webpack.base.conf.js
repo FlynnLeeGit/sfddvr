@@ -69,6 +69,14 @@ module.exports = {
           limit: 10000,
           name: utils.assetsPath('fonts/[name].[hash:5].[ext]')
         }
+      },
+      {
+        test: /zwfont\.json$/,
+        loader: 'url-loader',
+        options: {
+          limit: 1000,
+          name: utils.assetsPath('fonts/[name].[hash:5].[ext]')
+        }
       }
     ]
   }
