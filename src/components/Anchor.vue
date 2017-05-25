@@ -7,15 +7,7 @@
              :height='planeHeight'
              material='visible:false'>
     </a-plane>
-    <!--<a-animation begin='mouseenter'
-                   end='mouseleave'
-                   attribute='scale'
-                   direction='alternate'
-                   to='1.1 1.1 1.1'
-                   repeat='indefinite'
-                   dur='500'>
-      </a-animation>-->
-    <a-plane src='#door'
+    <!--<a-plane src='#door'
              color='#000'
              width='0.2'
              height='0.2'
@@ -27,7 +19,7 @@
                    repeat='indefinite'
                    dur='1000'>
       </a-animation>
-    </a-plane>
+    </a-plane>-->
   </a-entity>
 </template>
 <script>
@@ -41,7 +33,7 @@ export default {
   },
   data () {
     return {
-      fontSize: 0.2
+      fontSize: 0.3
     }
   },
   computed: {

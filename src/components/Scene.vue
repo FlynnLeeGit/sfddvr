@@ -1,7 +1,8 @@
 <template>
   <a-scene @mousedown='toggleFly()'>
     <a-assets>
-      <audio :src='bgAudio'></audio>
+      <audio :src='bgAudio'
+             autoplay></audio>
       <a-asset-item id='door'
                     :src='door'></a-asset-item>
       <a-asset-item id="zwfont"
@@ -12,7 +13,7 @@
       <a-plane v-for='(img,direction) in currentSpace.imgs'
                :key='direction'
                :id="getImgId(currentSpace,direction)"
-               :src="getImgSrc(img,'2048')"
+               :src="getImgSrc(img,{w:1024})"
                :width='size'
                :height='size'
                :position="getPosition(direction)"
@@ -34,7 +35,6 @@
               @click.native="goNextSpace(anchor.sid)"
               @mouseenter.native='setAnchorSid(anchor.sid)'
               @mouseleave.native='isHover=false' />
-
     </a-entity>
 
     <a-camera ref='camera'
@@ -70,7 +70,7 @@
 
       <span class="scene-loader__txt">
         <img class="scene-loader__spin"
-             src="../assets/loading.png">场景加载中{{loadingProcess}}/{{loadingProcessAll}}</span>
+             src="../assets/loading.png">场景加载中{{loadingProcess}}%</span>
     </div>
 
     <div v-if='!isHideControl'
@@ -83,7 +83,7 @@
         <li @click.capture='goNextSpace(space.id)'
             :active='space.id===currentSpace.id'
             v-for='space in sceneData'>
-          <img :src="getImgSrc(space.thumb,'256')">
+          <img :src="getImgSrc(space.thumb,{w:256})">
           <p>{{space.space}}</p>
         </li>
       </ul>
@@ -147,7 +147,7 @@
 
 <script>
 import { assetsLoad } from '@/plugins/utils'
-import { imgFilter } from '@/plugins/filters'
+import { imgViewFilter } from '@/plugins/filters'
 import axios from '@/plugins/axios'
 import Anchor from './Anchor.vue'
 
@@ -222,7 +222,6 @@ export default {
       currentSpace: {},
       isLoading: false,
       loadingProcess: 0,
-      loadingProcessAll: 0,
       bgAudioIndex: RandomAudioId,
       keypress: {},
       isZooming: false,
@@ -239,15 +238,17 @@ export default {
   },
   created () {
     this.initScene(this.sceneData)
-    if (this.isEditMode) {
+    if (this.isEditMode || this.isMobile) {
       this.isFly = false
     }
   },
   mounted () {
-    // document.addEventListener('keydown', this.keydown, false)
-    // document.addEventListener('keyup', this.keyup, false)
     document.addEventListener('mousewheel', this.mousewheel, false)
-    // window.requestAnimationFrame(this.move)
+    document.addEventListener('click', () => {
+      if (this.isMobile && this.isHover) {
+        this.goNextSpace(this.currentAnchor)
+      }
+    }, false)
   },
   computed: {
     bgAudio () {
@@ -256,11 +257,15 @@ export default {
     isMultiSpaces () {
       return this.sceneData.length > 1
     },
+    isMobile () {
+      return this.$route.query.mobile
+    },
     isHideControl () {
-      return this.$route.query.hideControl || (!this.isMultiSpaces)
+      return this.isMobile || this.$route.query.hideControl || (!this.isMultiSpaces)
     }
   },
   methods: {
+    imgViewFilter,
     mousewheel (e) {
       this.toggleFly()
       let s = e.deltaY > 0 ? 0.8 : 1.2
@@ -274,51 +279,20 @@ export default {
         this.zoomTo = 1.6
       }
     },
-    // keydown (e) {
-    //   if (!this.keypress[e.which]) {
-    //     this.keypress[e.which] = 1
-    //   }
-    // },
-    // keyup (e) {
-    //   if (this.keypress[e.which]) {
-    //     delete this.keypress[e.which]
-    //   }
-    // },
-    // move () {
-    //   window.requestAnimationFrame(this.move)
-    //   this.renderCamera()
-    // },
-    // renderCamera () {
-    //   if (Object.keys(this.keypress)) {
-    //     let { x, y, z } = this.$refs.camera.getAttribute('rotation')
-    //     if (this.keypress[LEFT]) {
-    //       y += SPEED
-    //     }
-    //     if (this.keypress[RIGHT]) {
-    //       y -= SPEED
-    //     }
-    //     if (this.keypress[UP]) {
-    //       x += SPEED
-    //     }
-    //     if (this.keypress[DOWN]) {
-    //       x -= SPEED
-    //     }
-    //     this.$refs.camera.setAttribute('rotation', { x, y, z })
-    //   }
-    // },
-    getImgSrc (fname, suffix) {
+    getImgSrc (fname, opts) {
       if (this.$route.name === 'share.vr') {
-        return `https://dn-st.baogaoyezhu.com/${fname}_${suffix}`
+        return imgViewFilter(fname, opts, 'staging')
+      } else {
+        return imgViewFilter(fname, opts)
       }
-      return imgFilter(fname, suffix)
     },
     loadSpaceAssets (newSpace) {
-      const assets = Object.keys(newSpace.imgs).map(k => this.getImgSrc(newSpace.imgs[k], '2048'))
+      const assets = Object.keys(newSpace.imgs).map(k => this.getImgSrc(newSpace.imgs[k], { w: 1024 }))
+      this.loadingProcess = 0
       return assetsLoad.init({
         assets,
         update: (process, processAll) => {
-          this.loadingProcess = process
-          this.loadingProcessAll = processAll
+          this.loadingProcess = Math.floor(process / processAll * 100)
         }
       })
     },

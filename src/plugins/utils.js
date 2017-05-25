@@ -1,14 +1,4 @@
 import axios from '@/plugins/axios'
-// import {
-//   imgFilter
-// } from '@/plugins/filters'
-
-// export const assetsLoad = assets => {
-//   const assetsPromise = assets.map(src => {
-//     return axios.get(src)
-//   })
-//   return Promise.all(assetsPromise)
-// }
 
 export const assetsLoad = {
   process: 0,

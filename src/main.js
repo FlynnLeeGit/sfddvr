@@ -13,6 +13,7 @@ import {
 import App from './App'
 import router from './router'
 import * as filters from './plugins/filters'
+import './plugins/modernizr-webp'
 
 Vue.config.productionTip = false
 
