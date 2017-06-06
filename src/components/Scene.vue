@@ -1,7 +1,8 @@
 <template>
   <a-scene @mousedown='toggleFly()'>
     <a-assets>
-      <audio :src='bgAudio'
+      <audio ref='bgAudio'
+             :src='bgAudio'
              autoplay></audio>
       <a-asset-item id='door'
                     :src='door'></a-asset-item>
@@ -101,6 +102,13 @@
       </ul>
     </div>
 
+    <div @click='toggleBgAudio'
+         class="audio-control">
+      <img :active='bgIsPlaying'
+           src="../assets/music.png"
+           alt="audio-control">
+    </div>
+
     <div class="scene-edit"
          v-if='isEditMode'>
       <el-button v-if='isHover'
@@ -187,17 +195,6 @@ const POSITION_MAP = {
   image_down: `0 -${BOX_SIZE / 2} 0`
 }
 
-// const LEFT = 37
-// const UP = 38
-// const RIGHT = 39
-// const DOWN = 40
-// const SPEED = 2
-/**
- * scene example
- *    {id:1,name:"空间1",imgs:{},links:[]},
- *    {id:1,name:"空间1",imgs:{},links:[]},
- *    {id:1,name:"空间1",imgs:{},links:[]}
- */
 export default {
   components: {
     Anchor
@@ -223,6 +220,7 @@ export default {
       isLoading: false,
       loadingProcess: 0,
       bgAudioIndex: RandomAudioId,
+      bgIsPlaying: true,
       keypress: {},
       isZooming: false,
       zoomFrom: 0.9,
@@ -277,6 +275,16 @@ export default {
       }
       if (this.zoomTo > 1.6) {
         this.zoomTo = 1.6
+      }
+    },
+    toggleBgAudio () {
+      const audioEl = this.$refs.bgAudio
+      if (audioEl.paused) {
+        audioEl.play()
+        this.bgIsPlaying = true
+      } else {
+        audioEl.pause()
+        this.bgIsPlaying = false
       }
     },
     getImgSrc (fname, opts) {
