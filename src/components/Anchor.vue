@@ -33,12 +33,12 @@ export default {
   },
   data () {
     return {
-      fontSize: 0.1
+      fontSize: 0.2
     }
   },
   computed: {
     fontVal () {
-      return `value:${this.content};font:#zwfont;size:${this.fontSize};height:0.3;color:#333`
+      return `value:${this.content};font:#zwfont;size:${this.fontSize};height:0.3;style:#333`
     },
     planeWidth () {
       return (this.content.length * this.fontSize * 1.4)
