@@ -1,0 +1,111 @@
+$circle-size: 4px;
+$circle-color: #008489;
+
+.ProgressBar {
+  position: absolute;
+  z-index: 3;
+  width: 20px;
+  height: 20px;
+  left: 50%;
+  top: 50%;
+  margin-left: -8px;
+  margin-right: -8px;
+
+  &__wrap {
+    width: 50%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    overflow: hidden;
+
+    &.-left {
+      left: 0;
+    }
+
+    &.-right {
+      right: 0;
+    }
+  }
+
+  &__circle {
+    box-sizing: border-box;
+    width: 200%;
+    height: 100%;
+    border: $(circle-size) solid transparent;
+    border-radius: 50%;
+    position: absolute;
+    top: 0;
+    opacity: 0;
+    transform: rotate(45deg);
+    transition: opacity .5s;
+
+    &[active] {
+      opacity: 0.7;
+    }
+
+    &.-left {
+      border-bottom-color: $(circle-color);
+      border-left-color: $(circle-color);
+      left: 0;
+
+      &[active] {
+        animation: ProgressBarLoad_left 2s linear;
+      }
+    }
+
+    &.-right {
+      border-top-color: $(circle-color);
+      border-right-color: $(circle-color);
+      right: 0;
+
+      &[active] {
+        animation: ProgressBarLoad_right 2s linear;
+      }
+    }
+  }
+
+  &__cursor {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    padding: $(circle-size);
+    box-sizing: border-box;
+  }
+
+  &__cursor-ray {
+    box-sizing: border-box;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    transition: all .3s;
+
+    &[active] {
+      border-color: $(circle-color);
+      box-shadow: 0 0 3px 1px $(circle-color);
+    }
+  }
+}
+
+@keyframes ProgressBarLoad_left {
+  0% {
+    transform: rotate(45deg);
+  }
+
+  50%,
+  100% {
+    transform: rotate(-135deg);
+  }
+}
+
+@keyframes ProgressBarLoad_right {
+  0%,
+  50% {
+    transform: rotate(45deg);
+  }
+
+  100% {
+    transform: rotate(-135deg);
+  }
+}

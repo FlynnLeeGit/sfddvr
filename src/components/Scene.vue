@@ -42,8 +42,8 @@
               id='room-camera'
               user-height='0'
               wasd-controls='enabled:false;'>
-      <a-cursor v-if='isMultiSpaces'
-                :color="isHover?'green':'white'"></a-cursor>
+      <a-cursor material='visible:false'>
+      </a-cursor>
       <a-animation v-if='isFly'
                    attribute='rotation'
                    to='0 -360 0'
@@ -65,6 +65,10 @@
     </a-camera>
 
     <a-light type="ambient"></a-light>
+
+    <progress-bar :active='isHover'>
+
+    </progress-bar>
 
     <div class="scene-loader"
          v-show='isLoading'>
@@ -158,6 +162,7 @@ import { assetsLoad } from '@/plugins/utils'
 import { imgViewFilter } from '@/plugins/filters'
 import axios from '@/plugins/axios'
 import Anchor from './Anchor.vue'
+import ProgressBar from './ProgressBar.vue'
 
 // audios
 import audioCanon from '@/assets/audio/canon.aac'
@@ -197,7 +202,8 @@ const POSITION_MAP = {
 
 export default {
   components: {
-    Anchor
+    Anchor,
+    ProgressBar
   },
   props: {
     sceneData: {

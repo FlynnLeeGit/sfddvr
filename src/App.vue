@@ -4,8 +4,8 @@
   <span v-else>路径错误</span>
 </template>
 <script>
-import Scene from './components/Scene'
 import axios from '@/plugins/axios'
+import Scene from '@/components/Scene'
 import shareScene from './shareScene'
 
 export default {
@@ -16,7 +16,6 @@ export default {
   data () {
     return {
       showVR: true,
-      needCursor: true,
       scene: [{
         imgs: {}
       }]
