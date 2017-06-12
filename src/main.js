@@ -14,6 +14,9 @@ import App from './App'
 import router from './router'
 import * as filters from './plugins/filters'
 import './plugins/modernizr-webp'
+import AlloyFinger from 'alloyfinger'
+import AlloyFingerVue from 'alloyfinger/vue/alloy_finger.vue'
+window.AlloyFinger = AlloyFinger
 
 Vue.config.productionTip = false
 
@@ -22,6 +25,8 @@ Vue.prototype.$aframeUtils = window.AFRAME.utils
 Object.keys(filters).forEach(k => {
   Vue.filter(k, filters[k])
 })
+
+Vue.use(AlloyFingerVue)
 
 Vue.use(Button)
 Vue.use(Dialog)

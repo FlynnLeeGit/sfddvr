@@ -29,7 +29,7 @@ export default {
   },
   data () {
     return {
-      fontSize: 0.18
+      fontSize: 0.15
     }
   },
   computed: {

@@ -1,5 +1,6 @@
 <template>
-  <a-scene @mousedown='toggleFly()'>
+  <a-scene v-finger:pinch="pinch"
+           @mousedown='toggleFly()'>
     <a-assets>
       <audio ref='bgAudio'
              :src='bgAudio'
@@ -283,6 +284,9 @@ export default {
       if (this.zoomTo > 1.6) {
         this.zoomTo = 1.6
       }
+    },
+    pinch (evt) {
+      this.zoomTo = evt.scale
     },
     toggleBgAudio () {
       const audioEl = this.$refs.bgAudio

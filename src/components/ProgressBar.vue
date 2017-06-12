@@ -22,10 +22,11 @@ export default {
     active: {
       type: Boolean,
       default: false
-    },
-    isMobile: {
-      type: Boolean,
-      default: false
+    }
+  },
+  computed: {
+    isMobile () {
+      return this.$aframeUtils.device.isMobile()
     }
   }
 }

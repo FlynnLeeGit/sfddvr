@@ -12,6 +12,7 @@
     "s": "git push && cd ../deploy && npm run vr-staging"
   },
   "dependencies": {
+    "alloyfinger": "^0.1.7",
     "axios": "^0.16.1",
     "element-ui": "^1.2.9",
     "vue": "^2.2.2",

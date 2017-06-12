@@ -49,7 +49,7 @@ $circle-color: #008489;
       left: 0;
 
       &[active] {
-        animation: ProgressBarLoad_left 2s linear;
+        animation: ProgressBarLoad_left 1.5s linear;
       }
     }
 
@@ -59,7 +59,7 @@ $circle-color: #008489;
       right: 0;
 
       &[active] {
-        animation: ProgressBarLoad_right 2s linear;
+        animation: ProgressBarLoad_right 1.5s linear;
       }
     }
   }
