@@ -33,9 +33,9 @@
               v-if='!isChanging'
               :key='anchor.sid'>
       <anchor :content='spaceMap[anchor.sid].space'
-              @click.native="goNextSpace(anchor.sid)"
-              @mouseenter.native='setAnchorSid(anchor.sid)'
-              @mouseleave.native='isHover=false' />
+              @click="goNextSpace(anchor.sid)"
+              @mouseenter='setAnchorSid(anchor.sid)'
+              @mouseleave='unsetAnchorSid(anchor.sid)' />
     </a-entity>
 
     <a-camera ref='camera'
@@ -238,6 +238,7 @@ export default {
     this.initScene(this.sceneData)
     if (this.isEditMode || this.isMobile) {
       this.isFly = false
+      this.$refs.bgAudio.play()
     }
   },
   mounted () {
@@ -343,6 +344,9 @@ export default {
       this.isHover = true
       this.currentAnchor = sid
     },
+    unsetAnchorSid (sid) {
+      this.isHover = false
+    },
     goNextSpace (sid) {
       if (sid === this.currentSpace.id) {
         this.isFly = true
@@ -354,6 +358,7 @@ export default {
         .then(() => {
           this.isLoading = false
           this.currentSpace = _currentSpace
+          this.isHover = false
           this.isFly = true
           this.isChanging = true
           this.isZooming = true
